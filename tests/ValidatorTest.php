@@ -2,9 +2,6 @@
 
 namespace hanneskod\clean;
 
-/**
- * @covers hanneskod\clean\Validator
- */
 class ValidatorTest extends \PHPUnit_Framework_TestCase
 {
     public function testExceptionOnException()
@@ -43,6 +40,27 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(
             ['key' => 'bar'],
             (new Validator(['key' => $rule->reveal()]))->validate(['key' => 'foo'])
+        );
+    }
+
+    public function testCustomExceptionCallback()
+    {
+        $rule = $this->prophesize('hanneskod\clean\RuleInterface');
+        $rule->validate('foo')->willThrow(new Exception);
+
+        $validator = new Validator(['foo' => $rule->reveal()]);
+
+        $exceptions = [];
+        $validator->onException(function (\Exception $exception) use (&$exceptions) {
+            $exceptions[] = $exception;
+        });
+
+        $validator->validate(['foo' => 'foo', 'bar' => 'bar']);
+
+        $this->assertCount(
+            2,
+            $exceptions,
+            'There should be 2 exceptions, one from the rule and one from bar not being definied'
         );
     }
 }

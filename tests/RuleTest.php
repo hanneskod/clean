@@ -2,9 +2,6 @@
 
 namespace hanneskod\clean;
 
-/**
- * @covers hanneskod\clean\Rule
- */
 class RuleTest extends \PHPUnit_Framework_TestCase
 {
     public function testExceptionOnNoDefault()

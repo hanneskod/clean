@@ -2,9 +2,6 @@
 
 namespace hanneskod\clean;
 
-/**
- * @covers hanneskod\clean\Exception
- */
 class ExceptionTest extends \PHPUnit_Framework_TestCase
 {
     public function testGetSourceRuleName()

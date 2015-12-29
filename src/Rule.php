@@ -7,6 +7,8 @@ namespace hanneskod\clean;
  */
 class Rule implements RuleInterface
 {
+    use ExceptionCallbackTrait;
+
     /**
      * @var string Default value
      */
@@ -33,25 +35,20 @@ class Rule implements RuleInterface
     private $exceptionMessage = 'Validation failed: %s';
 
     /**
-     * @var callable Callback on validation failure
-     */
-    private $onException;
-
-    /**
-     * Setup rule
+     * Setup on-exception callback
      */
     public function __construct()
     {
-        $this->onException = function (Exception $exception) {
-            throw $exception;
-        };
+        $this->onException(function (\Exception $exception) {
+            throw new Exception(sprintf($this->exceptionMessage, $exception->getMessage()), 0, $exception);
+        });
     }
 
     /**
      * Set default value
      *
      * @param  string $default
-     * @return Rule instance for chaining
+     * @return self Instance for chaining
      */
     public function def($default)
     {
@@ -65,7 +62,7 @@ class Rule implements RuleInterface
      * A filter should take a string value and return the filtered value.
      *
      * @param  callable,... $filter Any number of filters
-     * @return Rule instance for chaining
+     * @return self Instance for chaining
      */
     public function pre(callable $filter)
     {
@@ -81,7 +78,7 @@ class Rule implements RuleInterface
      * A filter should take a string value and return the filtered value.
      *
      * @param  callable,... $filter Any number of filters
-     * @return Rule instance for chaining
+     * @return self Instance for chaining
      */
     public function post(callable $filter)
     {
@@ -98,7 +95,7 @@ class Rule implements RuleInterface
      * and false if it is not.
      *
      * @param  callable,... $matcher Any number of matchers
-     * @return Rule instance for chaining
+     * @return self Instance for chaining
      */
     public function match(callable $matcher)
     {
@@ -111,30 +108,16 @@ class Rule implements RuleInterface
     /**
      * Set exception message
      *
+     * Note that if a custom exception callback is registered using onException
+     * setting this exception message will have no effect.
+     *
      * @param string $exceptionMessage Custom exception message, %s is replaced with
      *     parent exception message
-     * @return Rule instance for chaining
+     * @return self Instance for chaining
      */
     public function msg($exceptionMessage)
     {
         $this->exceptionMessage = $exceptionMessage;
-        return $this;
-    }
-
-
-    /**
-     * Register on exception callback
-     *
-     * The callback should take an Exception object and proccess it as
-     * appropriate. This generally means throwing or re-throwing an exception
-     * of some kind.
-     *
-     * @param  callable $callback
-     * @return Rule instance for chaining
-     */
-    public function onException(callable $callback)
-    {
-        $this->onException = $callback;
         return $this;
     }
 
@@ -169,14 +152,7 @@ class Rule implements RuleInterface
 
             return $value;
         } catch (\Exception $exception) {
-            return call_user_func(
-                $this->onException,
-                new Exception(
-                    sprintf($this->exceptionMessage, $exception->getMessage()),
-                    0,
-                    $exception
-                )
-            );
+            return $this->fireException($exception);
         }
     }
 }

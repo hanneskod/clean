@@ -7,6 +7,8 @@ namespace hanneskod\clean;
  */
 class Validator implements RuleInterface
 {
+    use ExceptionCallbackTrait;
+
     /**
      * @var RuleInterface[] Map of field names to rule objects
      */
@@ -34,7 +36,7 @@ class Validator implements RuleInterface
      *
      * @param  string        $name Name of field this rule should match
      * @param  RuleInterface $rule The rule
-     * @return Validator instance for chaining
+     * @return self Instance for chaining
      */
     public function addRule($name, RuleInterface $rule)
     {
@@ -43,10 +45,10 @@ class Validator implements RuleInterface
     }
 
     /**
-     * Set flag if unknown items shoudl be ignored when validating
+     * Set flag if unknown items should be ignored when validating
      *
      * @param  boolean $ignoreUnknown
-     * @return Validator instance for chaining
+     * @return self Instance for chaining
      */
     public function ignoreUnknown($ignoreUnknown = true)
     {
@@ -74,12 +76,14 @@ class Validator implements RuleInterface
                 );
             } catch (Exception $exception) {
                 $exception->pushRuleName($name);
-                throw $exception;
+                $this->fireException($exception);
             }
         }
 
-        if (!$this->ignoreUnknown && $diff = array_diff_key($tainted, $clean)) {
-            throw new Exception('Unknown input item(s): ' . implode(array_keys($diff), ', '));
+        if (!$this->ignoreUnknown && $diff = array_diff_key($tainted, $this->rules)) {
+            $this->fireException(
+                new Exception('Unknown input item(s): ' . implode(array_keys($diff), ', '))
+            );
         }
 
         return $clean;
