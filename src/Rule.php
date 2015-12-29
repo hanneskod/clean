@@ -61,13 +61,13 @@ class Rule implements RuleInterface
      *
      * A filter should take a string value and return the filtered value.
      *
-     * @param  callable,... $filter Any number of filters
+     * @param  callable ...$filter Any number of filters
      * @return self Instance for chaining
      */
     public function pre(callable $filter)
     {
-        foreach (func_get_args() as $filter) {
-            $this->preFilters[] = $filter;
+        foreach (func_get_args() as $preFilter) {
+            $this->preFilters[] = $preFilter;
         }
         return $this;
     }
@@ -77,13 +77,13 @@ class Rule implements RuleInterface
      *
      * A filter should take a string value and return the filtered value.
      *
-     * @param  callable,... $filter Any number of filters
+     * @param  callable ...$filter Any number of filters
      * @return self Instance for chaining
      */
     public function post(callable $filter)
     {
-        foreach (func_get_args() as $filter) {
-            $this->postFilters[] = $filter;
+        foreach (func_get_args() as $postFilter) {
+            $this->postFilters[] = $postFilter;
         }
         return $this;
     }
@@ -94,13 +94,13 @@ class Rule implements RuleInterface
      * A matcher should take a string value and return true if value is a match
      * and false if it is not.
      *
-     * @param  callable,... $matcher Any number of matchers
+     * @param  callable ...$matcher Any number of matchers
      * @return self Instance for chaining
      */
     public function match(callable $matcher)
     {
-        foreach (func_get_args() as $matcher) {
-            $this->matchers[] = $matcher;
+        foreach (func_get_args() as $match) {
+            $this->matchers[] = $match;
         }
         return $this;
     }

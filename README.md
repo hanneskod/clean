@@ -1,19 +1,21 @@
-# clean
+hanneskod/clean
+===============
 
 [![Packagist Version](https://img.shields.io/packagist/v/hanneskod/clean.svg?style=flat-square)](https://packagist.org/packages/hanneskod/clean)
 [![Build Status](https://img.shields.io/travis/hanneskod/clean/master.svg?style=flat-square)](https://travis-ci.org/hanneskod/clean)
+[![Quality Score](https://img.shields.io/scrutinizer/g/hanneskod/clean.svg?style=flat-square)](https://scrutinizer-ci.com/g/hanneskod/clean)
 
-A clean (as in simple) data cleaner (as in validation tool).
+A clean (as in simple) data cleaner (as in validation tool)
 
 Why?
 ----
 Sometimes it's necessary to perform complex input validation, and a number of
 tools exist for this purpose (think Respect\\Validation). At other times (arguably
 most times) built in php functions such as the ctype-family and regular expressions
-are good enough. For me libraries like respect simply feels to heavy for these times.
-Clean acts as a thin wrapper around callables and native php functions, *in just
-200 lines of code*, and allows you to filter and validate user input using a simple
-and compact fluent interface.
+are just good enough. For me libraries like respect simply feels to heavy for these
+times. Clean acts as a thin wrapper around callables and native php functions,
+*in just 200 lines of code*, and allows you to filter and validate user input
+using a simple and compact fluent interface.
 
 Clean attempts to comply with [PSR-1][], [PSR-2][], and [PSR-4][]. If
 you notice compliance oversights, please submit a pull request.
@@ -67,7 +69,7 @@ TODO
 
 TODO
 
-´def()´
+`def()`
 
 ### Specifying custom exception messages
 
@@ -77,7 +79,7 @@ TODO
 
 ### Ignoring unknown input items
 
-By default unkown intput items triggers an exception:
+By default unkown intput items triggers exceptions:
 
 <!-- @expectException hanneskod\clean\Exception -->
 ```php
@@ -186,7 +188,6 @@ Credits
 clean is covered under the WTFPL license.
 
 @author Hannes Forsgård (hannes.forsgard@fripost.org)
-
 
 [PSR-1]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md
 [PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
