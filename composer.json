@@ -1,0 +1,25 @@
+{
+    "name": "hanneskod/clean",
+    "description": "A clean (as in simple) data cleaner (as in validation tool)",
+    "keywords": ["input validation", "validator", "validation"],
+    "homepage": "https://github.com/hanneskod/clean",
+    "type": "library",
+    "license": "WTFPL",
+    "authors": [
+        {
+            "name": "Hannes Forsgård",
+            "email": "hannes.forsgard@fripost.org"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "hanneskod\\clean\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "hanneskod/readme-tester": "dev-master"
+    }
+}
