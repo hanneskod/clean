@@ -110,8 +110,11 @@ class RuleTest extends \PHPUnit_Framework_TestCase
 
     public function testCallbackOnException()
     {
-        $this->assertTrue(
-            (new Rule)->match('ctype_digit')->onException('boolval')->validate('foo')
+        $this->assertSame(
+            'foobar',
+            (new Rule)->match('ctype_digit')->onException(function () {
+                return 'foobar';
+            })->validate('foo')
         );
     }
 }

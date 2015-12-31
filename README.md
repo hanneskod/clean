@@ -34,7 +34,7 @@ you notice compliance oversights, please submit a pull request.
 Usage
 -----
 Basic usage consists of grouping a set of [Rules](src/Rule.php) in an
-[ArrayValidator](src/ArrayValidator.php):
+[ArrayValidator](src/ArrayValidator.php).
 
 <!-- @expectOutput 1234FOO -->
 ```php
@@ -63,13 +63,11 @@ echo $clean['bar'];
 
 Rules are defined using the `pre()`, `match()` and `post()` methods.
 
-1. `pre()` takes any number of `callable` arguments to acts as pre-match
-    filters. The filter should take an argument and return it in it's filtered
-    state.
-1. `post()` takes any number of `callable` arguments to acts as post-match
-    filters. The filter should take an argument and return it in it's filtered
-    state.
-1. `match()` takes any number of `callable` arguments to act as validators. the
+1. `pre()` takes any number of `callable` arguments to act as pre-match
+    filters. Filters take an argument and return it in it's filtered state.
+1. `post()` takes any number of `callable` arguments to act as post-match
+    filters. Filters take an argument and return it in it's filtered state.
+1. `match()` takes any number of `callable` arguments to act as validators. The
     callable should take an argument and return true if the argument is valid
     and false if it is not.
 
@@ -127,7 +125,7 @@ try {
 
 ### Ignoring unknown input items
 
-By default unkown intput items triggers exceptions:
+By default unkown intput items triggers exceptions.
 
 <!-- @expectException hanneskod\clean\Exception -->
 ```php
@@ -139,17 +137,17 @@ $validator = new clean\ArrayValidator([]);
 $validator->validate(['this-key-is-not-definied' => '']);
 ```
 
-Use `ignoreUnknown()` to switch this functionality off:
+Use `ignoreUnknown()` to switch this functionality off.
 
-<!-- @expectOutput /^1$/ -->
+<!-- @expectOutput empty -->
 ```php
 use hanneskod\clean;
 
 $validator = (new clean\ArrayValidator)->ignoreUnknown();
 $clean = $validator->validate(['this-key-is-not-definied' => 'foobar']);
 
-// outputs 1 (true) as the $clean array contains nothing
-echo empty($clean);
+// outputs empty
+echo empty($clean) ? 'empty' : 'not empty';
 ```
 
 ### Nesting validators
@@ -226,7 +224,7 @@ Validators throws exceptions as soon as a match fails. This may of course not
 always be what you want and this behaviour can be overridden by specifying an
 `onException()` callback (both at the Rule and ArrayValidator level).
 
-This can for example be used to set default values used on failure:
+This can for example be used to set default values used on failure only.
 
 <!-- @expectOutput 12345 -->
 ```php
@@ -240,7 +238,7 @@ $rule = (new Rule)->match('ctype_digit')->onException(function () {
 echo $rule->validate('these are no digits');
 ```
 
-Or to collect all failures:
+Or to compose a list of all failures.
 
 <!-- @expectOutput failure onefailure two -->
 ```php
@@ -276,7 +274,7 @@ To run the unit tests at the command line, issue `composer install` and then
 
 Credits
 -------
-clean is covered under the WTFPL license.
+Clean is covered under the WTFPL license.
 
 @author Hannes Forsgård (hannes.forsgard@fripost.org)
 
