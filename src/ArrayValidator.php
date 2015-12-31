@@ -75,6 +75,8 @@ class ArrayValidator extends Validator
             } catch (Exception $exception) {
                 $exception->pushValidatorName($name);
                 $this->fireException($exception);
+            } catch (\Exception $exception) {
+                $this->fireException($exception);
             }
         }
 

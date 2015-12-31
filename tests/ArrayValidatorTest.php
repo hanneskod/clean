@@ -63,4 +63,24 @@ class ArrayValidatorTest extends \PHPUnit_Framework_TestCase
             'There should be 2 exceptions, one from the validator and one from bar not being definied'
         );
     }
+
+    public function testCustomExceptionCallbackOnNonCleanException()
+    {
+        $validator = $this->prophesize('hanneskod\clean\Validator');
+        $validator->validate('foo')->willThrow(new \Exception);
+
+        $validator = new ArrayValidator(['foo' => $validator->reveal()]);
+
+        $called = false;
+        $validator->onException(function (\Exception $exception) use (&$called) {
+            $called = true;
+        });
+
+        $validator->validate(['foo' => 'foo']);
+
+        $this->assertTrue(
+            $called,
+            'The exception should be caught even though it is a base exception'
+        );
+    }
 }
