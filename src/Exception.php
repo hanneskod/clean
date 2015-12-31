@@ -8,28 +8,28 @@ namespace hanneskod\clean;
 class Exception extends \Exception
 {
     /**
-     * @var string[] Name(s) of failing rule(s)
+     * @var string[] Name(s) of failing validator(s)
      */
-    private $ruleNames = [];
+    private $validatorNames = [];
 
     /**
-     * Push name of failing rule
+     * Push name of failing validator
      *
      * @param  string $name
      * @return void
      */
-    public function pushRuleName($name)
+    public function pushValidatorName($name)
     {
-        $this->ruleNames[] = $name;
+        $this->validatorNames[] = $name;
     }
 
     /**
-     * Get name of failing rule
+     * Get name of failing validator
      *
      * @return string
      */
-    public function getSourceRuleName()
+    public function getSourceValidatorName()
     {
-        return implode(array_reverse($this->ruleNames), '::');
+        return implode(array_reverse($this->validatorNames), '::');
     }
 }

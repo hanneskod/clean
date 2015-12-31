@@ -3,89 +3,60 @@
 namespace hanneskod\clean;
 
 /**
- * Validate arrays of input data
+ * Base validator including exception handling using a callback
  */
-class Validator implements RuleInterface
+abstract class Validator
 {
-    use ExceptionCallbackTrait;
-
     /**
-     * @var RuleInterface[] Map of field names to rule objects
+     * @var callable Callback on exception
      */
-    private $rules = [];
-
-    /**
-     * @var boolean Flag if unknown array items should be ignored when validating
-     */
-    private $ignoreUnknown = false;
-
-    /**
-     * Register rules
-     *
-     * @param RuleInterface[] $rules Map of field names to Rule objects
-     */
-    public function __construct(array $rules = [])
-    {
-        foreach ($rules as $name => $rule) {
-            $this->addRule($name, $rule);
-        }
-    }
-
-    /**
-     * Add a rule
-     *
-     * @param  string        $name Name of field this rule should match
-     * @param  RuleInterface $rule The rule
-     * @return self Instance for chaining
-     */
-    public function addRule($name, RuleInterface $rule)
-    {
-        $this->rules[$name] = $rule;
-        return $this;
-    }
-
-    /**
-     * Set flag if unknown items should be ignored when validating
-     *
-     * @param  boolean $ignoreUnknown
-     * @return self Instance for chaining
-     */
-    public function ignoreUnknown($ignoreUnknown = true)
-    {
-        $this->ignoreUnknown = $ignoreUnknown;
-        return $this;
-    }
+    private $onExceptionCallback = [__CLASS__, 'defaultOnExceptionCallback'];
 
     /**
      * Validate tainted data
      *
-     * {@inheritdoc}
+     * @param  mixed $tainted
+     * @return mixed The cleaned data
+     * @throws ValidationException If validation fails
      */
-    public function validate($tainted)
+    abstract public function validate($tainted);
+
+    /**
+     * Register on-exception callback
+     *
+     * The callback should take an \Exception object and proccess it as
+     * appropriate. This generally means throwing an exception of some kind
+     * or returning a replacement value.
+     *
+     * @param  callable $callback
+     * @return self Instance for chaining
+     */
+    public function onException(callable $callback)
     {
-        if (!is_array($tainted)) {
-            throw new Exception("expecting array input");
-        }
+        $this->onExceptionCallback = $callback;
+        return $this;
+    }
 
-        $clean = [];
+    /**
+     * Call the on-exception callback
+     *
+     * @param  \Exception $exception
+     * @return mixed Whatever the callback returns
+     */
+    protected function fireException(\Exception $exception)
+    {
+        return call_user_func($this->onExceptionCallback, $exception);
+    }
 
-        foreach ($this->rules as $name => $rule) {
-            try {
-                $clean[$name] = $rule->validate(
-                    isset($tainted[$name]) ? $tainted[$name] : null
-                );
-            } catch (Exception $exception) {
-                $exception->pushRuleName($name);
-                $this->fireException($exception);
-            }
-        }
-
-        if (!$this->ignoreUnknown && $diff = array_diff_key($tainted, $this->rules)) {
-            $this->fireException(
-                new Exception('Unknown input item(s): ' . implode(array_keys($diff), ', '))
-            );
-        }
-
-        return $clean;
+    /**
+     * Simple callback that throws exceptions
+     *
+     * @param  \Exception $exception
+     * @return void Never returns
+     * @throws \Exception throws supplied exception
+     */
+    protected static function defaultOnExceptionCallback(\Exception $exception)
+    {
+        throw $exception;
     }
 }

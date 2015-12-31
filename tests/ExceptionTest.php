@@ -4,27 +4,27 @@ namespace hanneskod\clean;
 
 class ExceptionTest extends \PHPUnit_Framework_TestCase
 {
-    public function testGetSourceRuleName()
+    public function testGetSourceValidatorName()
     {
         $exception = new Exception;
 
         $this->assertSame(
             '',
-            $exception->getSourceRuleName()
+            $exception->getSourceValidatorName()
         );
 
-        $exception->pushRuleName('foo');
+        $exception->pushValidatorName('foo');
 
         $this->assertSame(
             'foo',
-            $exception->getSourceRuleName()
+            $exception->getSourceValidatorName()
         );
 
-        $exception->pushRuleName('bar');
+        $exception->pushValidatorName('bar');
 
         $this->assertSame(
             'bar::foo',
-            $exception->getSourceRuleName()
+            $exception->getSourceValidatorName()
         );
     }
 }

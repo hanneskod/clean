@@ -5,10 +5,8 @@ namespace hanneskod\clean;
 /**
  * Defines a validation rule
  */
-class Rule implements RuleInterface
+class Rule extends Validator
 {
-    use ExceptionCallbackTrait;
-
     /**
      * @var string Default value
      */
@@ -66,8 +64,8 @@ class Rule implements RuleInterface
      */
     public function pre(callable $filter)
     {
-        foreach (func_get_args() as $preFilter) {
-            $this->preFilters[] = $preFilter;
+        foreach (func_get_args() as $filter) {
+            $this->preFilters[] = $filter;
         }
         return $this;
     }
@@ -82,8 +80,8 @@ class Rule implements RuleInterface
      */
     public function post(callable $filter)
     {
-        foreach (func_get_args() as $postFilter) {
-            $this->postFilters[] = $postFilter;
+        foreach (func_get_args() as $filter) {
+            $this->postFilters[] = $filter;
         }
         return $this;
     }
@@ -99,8 +97,8 @@ class Rule implements RuleInterface
      */
     public function match(callable $matcher)
     {
-        foreach (func_get_args() as $match) {
-            $this->matchers[] = $match;
+        foreach (func_get_args() as $matcher) {
+            $this->matchers[] = $matcher;
         }
         return $this;
     }

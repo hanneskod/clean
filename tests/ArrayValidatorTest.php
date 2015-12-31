@@ -2,53 +2,53 @@
 
 namespace hanneskod\clean;
 
-class ValidatorTest extends \PHPUnit_Framework_TestCase
+class ArrayValidatorTest extends \PHPUnit_Framework_TestCase
 {
     public function testExceptionOnException()
     {
-        $rule = $this->prophesize('hanneskod\clean\RuleInterface');
-        $rule->validate(null)->willThrow(new Exception);
+        $validator = $this->prophesize('hanneskod\clean\Validator');
+        $validator->validate(null)->willThrow(new Exception);
 
         $this->setExpectedException('hanneskod\clean\Exception');
-        (new Validator([$rule->reveal()]))->validate([]);
+        (new ArrayValidator([$validator->reveal()]))->validate([]);
     }
 
     public function testExceptionOnNonArray()
     {
         $this->setExpectedException('hanneskod\clean\Exception');
-        (new Validator)->validate('not-an-array');
+        (new ArrayValidator)->validate('not-an-array');
     }
 
     public function testExceptionOnUnknownItem()
     {
         $this->setExpectedException('hanneskod\clean\Exception');
-        (new Validator)->validate(['unknown-key' => '']);
+        (new ArrayValidator)->validate(['unknown-key' => '']);
     }
 
     public function testIgnoreUnknownItem()
     {
         $this->assertEquals(
             [],
-            (new Validator)->ignoreUnknown()->validate(['unknown-key' => ''])
+            (new ArrayValidator)->ignoreUnknown()->validate(['unknown-key' => ''])
         );
     }
 
     public function testValidate()
     {
-        $rule = $this->prophesize('hanneskod\clean\RuleInterface');
-        $rule->validate('foo')->willReturn('bar');
+        $validator = $this->prophesize('hanneskod\clean\Validator');
+        $validator->validate('foo')->willReturn('bar');
         $this->assertSame(
             ['key' => 'bar'],
-            (new Validator(['key' => $rule->reveal()]))->validate(['key' => 'foo'])
+            (new ArrayValidator(['key' => $validator->reveal()]))->validate(['key' => 'foo'])
         );
     }
 
     public function testCustomExceptionCallback()
     {
-        $rule = $this->prophesize('hanneskod\clean\RuleInterface');
-        $rule->validate('foo')->willThrow(new Exception);
+        $validator = $this->prophesize('hanneskod\clean\Validator');
+        $validator->validate('foo')->willThrow(new Exception);
 
-        $validator = new Validator(['foo' => $rule->reveal()]);
+        $validator = new ArrayValidator(['foo' => $validator->reveal()]);
 
         $exceptions = [];
         $validator->onException(function (\Exception $exception) use (&$exceptions) {
@@ -60,7 +60,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(
             2,
             $exceptions,
-            'There should be 2 exceptions, one from the rule and one from bar not being definied'
+            'There should be 2 exceptions, one from the validator and one from bar not being definied'
         );
     }
 }
