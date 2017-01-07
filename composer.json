@@ -18,8 +18,5 @@
     },
     "require": {
         "php": ">=5.4"
-    },
-    "require-dev": {
-        "hanneskod/readme-tester": "dev-master#7343455d8e5d3e3441570b07bc0fabe718555dba"
     }
 }

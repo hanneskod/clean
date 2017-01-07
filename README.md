@@ -109,7 +109,7 @@ When validation fails an exception is thrown with a generic message describing
 the error. Each rule may define a custom exception message using the `msg()`
 method to fine tune this behaviour.
 
-<!-- @expectOutput Expecting numerical input -->
+<!-- @expectOutput "Expecting numerical input" -->
 ```php
 use hanneskod\clean;
 
@@ -240,7 +240,7 @@ echo $rule->validate('these are no digits');
 
 Or to compose a list of all failures.
 
-<!-- @expectOutput failure onefailure two -->
+<!-- @expectOutput "failure onefailure two" -->
 ```php
 use hanneskod\clean;
 
