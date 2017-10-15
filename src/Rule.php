@@ -7,7 +7,7 @@ namespace hanneskod\clean;
 /**
  * Defines a validation rule
  */
-class Rule extends Validator
+class Rule extends AbstractValidator
 {
     /**
      * @var string Default value

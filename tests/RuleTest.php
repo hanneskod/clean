@@ -117,4 +117,12 @@ class RuleTest extends \PHPUnit\Framework\TestCase
             })->validate('foo')
         );
     }
+
+    public function testIsCallable()
+    {
+        $this->assertSame(
+            '123',
+            (new Rule)->match('ctype_digit')('123')
+        );
+    }
 }

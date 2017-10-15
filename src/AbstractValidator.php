@@ -7,21 +7,12 @@ namespace hanneskod\clean;
 /**
  * Base validator including exception handling using a callback
  */
-abstract class Validator
+abstract class AbstractValidator implements ValidatorInterface
 {
     /**
      * @var callable Callback on exception
      */
     private $onExceptionCallback = [__CLASS__, 'defaultOnExceptionCallback'];
-
-    /**
-     * Validate tainted data
-     *
-     * @param  mixed $tainted
-     * @return mixed The cleaned data
-     * @throws ValidationException If validation fails
-     */
-    abstract public function validate($tainted);
 
     /**
      * Register on-exception callback
@@ -54,5 +45,10 @@ abstract class Validator
     protected static function defaultOnExceptionCallback(\Exception $exception): void
     {
         throw $exception;
+    }
+
+    public function __invoke($tainted)
+    {
+        return $this->validate($tainted);
     }
 }

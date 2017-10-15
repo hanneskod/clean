@@ -7,10 +7,10 @@ namespace hanneskod\clean;
 /**
  * Validate arrays of input data
  */
-class ArrayValidator extends Validator
+class ArrayValidator extends AbstractValidator
 {
     /**
-     * @var Validator[] Map of field names to validators
+     * @var ValidatorInterface[] Map of field names to validators
      */
     private $validators = [];
 
@@ -22,7 +22,7 @@ class ArrayValidator extends Validator
     /**
      * Register validators
      *
-     * @param Validator[] $validators Map of field names to validators
+     * @param ValidatorInterface[] $validators Map of field names to validators
      */
     public function __construct(array $validators = [])
     {
@@ -34,7 +34,7 @@ class ArrayValidator extends Validator
     /**
      * Add a validator
      */
-    public function addValidator(string $name, Validator $validator): self
+    public function addValidator(string $name, ValidatorInterface $validator): self
     {
         $this->validators[$name] = $validator;
         return $this;

@@ -6,7 +6,7 @@ class ArrayValidatorTest extends \PHPUnit\Framework\TestCase
 {
     public function testExceptionOnException()
     {
-        $validator = $this->prophesize(Validator::class);
+        $validator = $this->prophesize(ValidatorInterface::class);
         $validator->validate(null)->willThrow(new Exception);
 
         $this->expectException(Exception::class);
@@ -35,7 +35,7 @@ class ArrayValidatorTest extends \PHPUnit\Framework\TestCase
 
     public function testValidate()
     {
-        $validator = $this->prophesize(Validator::class);
+        $validator = $this->prophesize(ValidatorInterface::class);
         $validator->validate('foo')->willReturn('bar');
         $this->assertSame(
             ['key' => 'bar'],
@@ -43,9 +43,19 @@ class ArrayValidatorTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    public function testIsCallable()
+    {
+        $validator = $this->prophesize(ValidatorInterface::class);
+        $validator->validate('foo')->willReturn('bar');
+        $this->assertSame(
+            ['key' => 'bar'],
+            (new ArrayValidator(['key' => $validator->reveal()]))(['key' => 'foo'])
+        );
+    }
+
     public function testCustomExceptionCallback()
     {
-        $validator = $this->prophesize(Validator::class);
+        $validator = $this->prophesize(ValidatorInterface::class);
         $validator->validate('foo')->willThrow(new Exception);
 
         $validator = new ArrayValidator(['foo' => $validator->reveal()]);
@@ -66,7 +76,7 @@ class ArrayValidatorTest extends \PHPUnit\Framework\TestCase
 
     public function testCustomExceptionCallbackOnNonCleanException()
     {
-        $validator = $this->prophesize(Validator::class);
+        $validator = $this->prophesize(ValidatorInterface::class);
         $validator->validate('foo')->willThrow(new \Exception);
 
         $validator = new ArrayValidator(['foo' => $validator->reveal()]);
