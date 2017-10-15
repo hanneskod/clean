@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace hanneskod\clean;
 
 /**
@@ -14,21 +16,16 @@ class Exception extends \Exception
 
     /**
      * Push name of failing validator
-     *
-     * @param  string $name
-     * @return void
      */
-    public function pushValidatorName($name)
+    public function pushValidatorName(string $name): void
     {
         $this->validatorNames[] = $name;
     }
 
     /**
      * Get name of failing validator
-     *
-     * @return string
      */
-    public function getSourceValidatorName()
+    public function getSourceValidatorName(): string
     {
         return implode(array_reverse($this->validatorNames), '::');
     }

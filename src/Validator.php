@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace hanneskod\clean;
 
 /**
@@ -27,11 +29,8 @@ abstract class Validator
      * The callback should take an \Exception object and proccess it as
      * appropriate. This generally means throwing an exception of some kind
      * or returning a replacement value.
-     *
-     * @param  callable $callback
-     * @return self Instance for chaining
      */
-    public function onException(callable $callback)
+    public function onException(callable $callback): self
     {
         $this->onExceptionCallback = $callback;
         return $this;
@@ -40,7 +39,6 @@ abstract class Validator
     /**
      * Call the on-exception callback
      *
-     * @param  \Exception $exception
      * @return mixed Whatever the callback returns
      */
     protected function fireException(\Exception $exception)
@@ -51,11 +49,9 @@ abstract class Validator
     /**
      * Simple callback that throws exceptions
      *
-     * @param  \Exception $exception
-     * @return void Never returns
      * @throws \Exception throws supplied exception
      */
-    protected static function defaultOnExceptionCallback(\Exception $exception)
+    protected static function defaultOnExceptionCallback(\Exception $exception): void
     {
         throw $exception;
     }

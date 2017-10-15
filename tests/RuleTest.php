@@ -2,11 +2,11 @@
 
 namespace hanneskod\clean;
 
-class RuleTest extends \PHPUnit_Framework_TestCase
+class RuleTest extends \PHPUnit\Framework\TestCase
 {
     public function testExceptionOnNoDefault()
     {
-        $this->setExpectedException('hanneskod\clean\Exception');
+        $this->expectException(Exception::class);
         (new Rule)->validate(null);
     }
 
@@ -68,13 +68,13 @@ class RuleTest extends \PHPUnit_Framework_TestCase
 
     public function testExceptionOnMatchFailure()
     {
-        $this->setExpectedException('hanneskod\clean\Exception');
+        $this->expectException(Exception::class);
         (new Rule)->match('ctype_digit')->validate('foobar');
     }
 
     public function testExceptionOnLateMatchFailure()
     {
-        $this->setExpectedException('hanneskod\clean\Exception');
+        $this->expectException(Exception::class);
         (new Rule)->match('is_string', 'ctype_digit')->validate('foobar');
     }
 
@@ -104,7 +104,7 @@ class RuleTest extends \PHPUnit_Framework_TestCase
 
     public function testCustomExceptionMessage()
     {
-        $this->setExpectedException('hanneskod\clean\Exception', 'my-custom-exception-message');
+        $this->expectException(Exception::class, 'my-custom-exception-message');
         (new Rule)->msg('my-custom-exception-message')->validate(null);
     }
 

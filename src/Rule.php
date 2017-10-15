@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace hanneskod\clean;
 
 /**
@@ -44,11 +46,8 @@ class Rule extends Validator
 
     /**
      * Set default value
-     *
-     * @param  string $default
-     * @return self Instance for chaining
      */
-    public function def($default)
+    public function def($default): self
     {
         $this->default = $default;
         return $this;
@@ -58,13 +57,10 @@ class Rule extends Validator
      * Register one or more pre match filters
      *
      * A filter should take a string value and return the filtered value.
-     *
-     * @param  callable ...$filter Any number of filters
-     * @return self Instance for chaining
      */
-    public function pre(callable $filter)
+    public function pre(callable... $filters): self
     {
-        foreach (func_get_args() as $filter) {
+        foreach ($filters as $filter) {
             $this->preFilters[] = $filter;
         }
         return $this;
@@ -74,13 +70,10 @@ class Rule extends Validator
      * Register one or more post match filters
      *
      * A filter should take a string value and return the filtered value.
-     *
-     * @param  callable ...$filter Any number of filters
-     * @return self Instance for chaining
      */
-    public function post(callable $filter)
+    public function post(callable... $filters): self
     {
-        foreach (func_get_args() as $filter) {
+        foreach ($filters as $filter) {
             $this->postFilters[] = $filter;
         }
         return $this;
@@ -95,9 +88,9 @@ class Rule extends Validator
      * @param  callable ...$matcher Any number of matchers
      * @return self Instance for chaining
      */
-    public function match(callable $matcher)
+    public function match(callable... $matchers): self
     {
-        foreach (func_get_args() as $matcher) {
+        foreach ($matchers as $matcher) {
             $this->matchers[] = $matcher;
         }
         return $this;
@@ -111,9 +104,8 @@ class Rule extends Validator
      *
      * @param string $exceptionMessage Custom exception message, %s is replaced with
      *     parent exception message
-     * @return self Instance for chaining
      */
-    public function msg($exceptionMessage)
+    public function msg(string $exceptionMessage): self
     {
         $this->exceptionMessage = $exceptionMessage;
         return $this;

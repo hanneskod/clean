@@ -7,7 +7,7 @@ namespace hanneskod\clean;
  *
  * @coversNothing
  */
-class ReadmeIntegration extends \PHPUnit_Framework_TestCase
+class ReadmeIntegration extends \PHPUnit\Framework\TestCase
 {
     public function testReadmeIntegrationTests()
     {

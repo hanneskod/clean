@@ -17,6 +17,9 @@
         }
     },
     "require": {
-        "php": ">=5.4"
+        "php": "^7.0"
+    },
+    "require-dev": {
+        "hanneskod/readme-tester": "1.0-beta.3"
     }
 }

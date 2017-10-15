@@ -2,7 +2,7 @@
 
 namespace hanneskod\clean;
 
-class ExceptionTest extends \PHPUnit_Framework_TestCase
+class ExceptionTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetSourceValidatorName()
     {

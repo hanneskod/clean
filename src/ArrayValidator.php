@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace hanneskod\clean;
 
 /**
@@ -25,18 +27,14 @@ class ArrayValidator extends Validator
     public function __construct(array $validators = [])
     {
         foreach ($validators as $name => $validator) {
-            $this->addValidator($name, $validator);
+            $this->addValidator((string)$name, $validator);
         }
     }
 
     /**
      * Add a validator
-     *
-     * @param  string    $name Name of field to validate
-     * @param  Validator $validator The validator
-     * @return self Instance for chaining
      */
-    public function addValidator($name, Validator $validator)
+    public function addValidator(string $name, Validator $validator): self
     {
         $this->validators[$name] = $validator;
         return $this;
@@ -44,11 +42,8 @@ class ArrayValidator extends Validator
 
     /**
      * Set flag if unknown items should be ignored when validating
-     *
-     * @param  boolean $ignoreUnknown
-     * @return self Instance for chaining
      */
-    public function ignoreUnknown($ignoreUnknown = true)
+    public function ignoreUnknown(bool $ignoreUnknown = true): self
     {
         $this->ignoreUnknown = $ignoreUnknown;
         return $this;
@@ -73,7 +68,7 @@ class ArrayValidator extends Validator
                     isset($tainted[$name]) ? $tainted[$name] : null
                 );
             } catch (Exception $exception) {
-                $exception->pushValidatorName($name);
+                $exception->pushValidatorName((string)$name);
                 $this->fireException($exception);
             } catch (\Exception $exception) {
                 $this->fireException($exception);

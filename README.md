@@ -26,7 +26,7 @@ repository:
 
     composer require hanneskod/clean:^1.0
 
-Clean requires php 5.4 or later and has no userland dependencies.
+Clean requires php 7.1 or later and has no userland dependencies.
 
 Clean attempts to comply with [PSR-1][], [PSR-2][], and [PSR-4][]. If
 you notice compliance oversights, please submit a pull request.
@@ -269,8 +269,7 @@ foreach ($exceptions as $e) {
 Testing
 -------
 To run the unit tests at the command line, issue `composer install` and then
-`phpunit` at the package root. This requires [composer][] to be available as
-`composer`, and [PHPUnit][] to be available as `phpunit`.
+`phpunit` at the package root.
 
 Credits
 -------
@@ -283,4 +282,3 @@ Clean is covered under the WTFPL license.
 [PSR-4]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
 [composer]: http://getcomposer.org/
 [packagist]: https://packagist.org/
-[PHPUnit]: http://phpunit.de/manual/

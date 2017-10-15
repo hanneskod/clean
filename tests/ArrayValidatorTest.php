@@ -2,26 +2,26 @@
 
 namespace hanneskod\clean;
 
-class ArrayValidatorTest extends \PHPUnit_Framework_TestCase
+class ArrayValidatorTest extends \PHPUnit\Framework\TestCase
 {
     public function testExceptionOnException()
     {
-        $validator = $this->prophesize('hanneskod\clean\Validator');
+        $validator = $this->prophesize(Validator::class);
         $validator->validate(null)->willThrow(new Exception);
 
-        $this->setExpectedException('hanneskod\clean\Exception');
+        $this->expectException(Exception::class);
         (new ArrayValidator([$validator->reveal()]))->validate([]);
     }
 
     public function testExceptionOnNonArray()
     {
-        $this->setExpectedException('hanneskod\clean\Exception');
+        $this->expectException(Exception::class);
         (new ArrayValidator)->validate('not-an-array');
     }
 
     public function testExceptionOnUnknownItem()
     {
-        $this->setExpectedException('hanneskod\clean\Exception');
+        $this->expectException(Exception::class);
         (new ArrayValidator)->validate(['unknown-key' => '']);
     }
 
@@ -35,7 +35,7 @@ class ArrayValidatorTest extends \PHPUnit_Framework_TestCase
 
     public function testValidate()
     {
-        $validator = $this->prophesize('hanneskod\clean\Validator');
+        $validator = $this->prophesize(Validator::class);
         $validator->validate('foo')->willReturn('bar');
         $this->assertSame(
             ['key' => 'bar'],
@@ -45,7 +45,7 @@ class ArrayValidatorTest extends \PHPUnit_Framework_TestCase
 
     public function testCustomExceptionCallback()
     {
-        $validator = $this->prophesize('hanneskod\clean\Validator');
+        $validator = $this->prophesize(Validator::class);
         $validator->validate('foo')->willThrow(new Exception);
 
         $validator = new ArrayValidator(['foo' => $validator->reveal()]);
@@ -66,7 +66,7 @@ class ArrayValidatorTest extends \PHPUnit_Framework_TestCase
 
     public function testCustomExceptionCallbackOnNonCleanException()
     {
-        $validator = $this->prophesize('hanneskod\clean\Validator');
+        $validator = $this->prophesize(Validator::class);
         $validator->validate('foo')->willThrow(new \Exception);
 
         $validator = new ArrayValidator(['foo' => $validator->reveal()]);
