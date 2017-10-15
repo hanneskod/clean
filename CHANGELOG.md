@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Nothing yet...
 
+## [2.0.1] - 2017-10-15
+
+### Added
+- .gitattributes
+
 ## [2.0.0] - 2017-10-15
 
 ### Added
