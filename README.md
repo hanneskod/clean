@@ -59,6 +59,16 @@ echo $clean['foo'];
 echo $clean['bar'];
 ```
 
+Validators are also callable in themselves.
+
+<!-- @expectOutput 123 -->
+```php
+use hanneskod\clean;
+
+// outputs 123
+echo (new clean\Rule)->pre('trim')->match('ctype_digit')('  123  ');
+```
+
 ### Defining rules
 
 Rules are defined using the `pre()`, `match()` and `post()` methods.
