@@ -24,7 +24,7 @@ Installation
 Install using [composer][]. Exists as `hanneskod/clean` in the [packagist][]
 repository:
 
-    composer require hanneskod/clean:^2.0
+    composer require hanneskod/clean
 
 Clean requires php 7.1 or later and has no userland dependencies.
 
