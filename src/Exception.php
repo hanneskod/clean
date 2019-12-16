@@ -27,6 +27,6 @@ class Exception extends \Exception
      */
     public function getSourceValidatorName(): string
     {
-        return implode(array_reverse($this->validatorNames), '::');
+        return implode('::', array_reverse($this->validatorNames));
     }
 }

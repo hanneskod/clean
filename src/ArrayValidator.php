@@ -77,7 +77,7 @@ class ArrayValidator extends AbstractValidator
 
         if (!$this->ignoreUnknown && $diff = array_diff_key($tainted, $this->validators)) {
             $this->fireException(
-                new Exception('Unknown input item(s): ' . implode(array_keys($diff), ', '))
+                new Exception('Unknown input item(s): ' . implode(', ', array_keys($diff)))
             );
         }
 
