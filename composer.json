@@ -17,9 +17,10 @@
         }
     },
     "require": {
-        "php": "^7.0"
+        "php": ">=7.1"
     },
     "require-dev": {
-        "hanneskod/readme-tester": "1.0-beta.3"
+        "hanneskod/readme-tester": "1.0-beta.3",
+        "phpunit/phpunit": "^7"
     }
 }

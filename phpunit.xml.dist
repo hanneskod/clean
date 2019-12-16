@@ -2,11 +2,10 @@
          convertErrorsToExceptions="true"
          convertWarningsToExceptions="true"
          convertNoticesToExceptions="true"
-         mapTestClassNameToCoveredClassName="true"
          verbose="true"
          colors="true">
     <testsuites>
-        <testsuite>
+        <testsuite name="default">
             <directory>./tests</directory>
         </testsuite>
         <testsuite name="readme">
