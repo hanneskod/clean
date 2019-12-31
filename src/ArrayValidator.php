@@ -80,5 +80,4 @@ final class ArrayValidator implements ValidatorInterface
 
         throw new Exception(trim($msg));
     }
-
 }
