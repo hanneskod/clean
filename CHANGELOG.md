@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Validators are no longer callable
 - `Rule` and `ArrayValidator` are now **immutable** and **final**
 - Require php 7.4
+- `AbstractValidator` rewritten as an extension point for custom validators
 
 ## Removed
 - `Exception::pushValidatorName()` and `Exception::getSourceValidatorName()`

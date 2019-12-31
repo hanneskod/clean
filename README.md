@@ -32,7 +32,7 @@ Basic usage consists of grouping a set of [Rules](src/Rule.php) in an
 [ArrayValidator](src/ArrayValidator.php).
 
 <!-- @example "basic usage" -->
-<!-- @expectError -->
+<!-- @expectOutput -->
 ```php
 use hanneskod\clean\ArrayValidator;
 use hanneskod\clean\Rule;
@@ -47,7 +47,11 @@ $tainted = [
     'bar' => 'valid'
 ];
 
-$validator->validate($tainted);
+try {
+    $validator->validate($tainted);
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
 ```
 
 ### Defining rules
@@ -240,4 +244,25 @@ $result = $validator->applyTo([
 
 // outputs foo
 echo implode(array_keys($result->getErrors()));
+```
+
+### Implementing custom validators
+
+<!-- @example "implementing custom validators" -->
+<!-- @expectOutput 1234 -->
+```php
+use hanneskod\clean\AbstractValidator;
+use hanneskod\clean\Rule;
+use hanneskod\clean\ValidatorInterface;
+
+class NumberRule extends AbstractValidator
+{
+    protected function create(): ValidatorInterface
+    {
+        return (new Rule)->match('ctype_digit');
+    }
+}
+
+// Outputs 1234
+echo (new NumberRule)->validate('1234');
 ```

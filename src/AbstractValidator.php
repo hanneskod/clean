@@ -5,50 +5,26 @@ declare(strict_types = 1);
 namespace hanneskod\clean;
 
 /**
- * Base validator including exception handling using a callback
+ * Extension point for custom validators
  */
 abstract class AbstractValidator implements ValidatorInterface
 {
-    /**
-     * @var callable Callback on exception
-     */
-    private $onExceptionCallback = [__CLASS__, 'defaultOnExceptionCallback'];
+    private ValidatorInterface $validator;
 
-    /**
-     * Register on-exception callback
-     *
-     * The callback should take an \Exception object and proccess it as
-     * appropriate. This generally means throwing an exception of some kind
-     * or returning a replacement value.
-     */
-    public function onException(callable $callback): self
+    public function __construct()
     {
-        $this->onExceptionCallback = $callback;
-        return $this;
+        $this->validator = $this->create();
     }
 
-    /**
-     * Call the on-exception callback
-     *
-     * @return mixed Whatever the callback returns
-     */
-    protected function fireException(\Exception $exception)
+    abstract protected function create(): ValidatorInterface;
+
+    public function applyTo($data): ResultInterface
     {
-        return call_user_func($this->onExceptionCallback, $exception);
+        return $this->validator->applyTo($data);
     }
 
-    /**
-     * Simple callback that throws exceptions
-     *
-     * @throws \Exception throws supplied exception
-     */
-    protected static function defaultOnExceptionCallback(\Exception $exception): void
+    public function validate($data)
     {
-        throw $exception;
-    }
-
-    public function __invoke($tainted)
-    {
-        return $this->validate($tainted);
+        return $this->applyTo($data)->getValidData();
     }
 }
