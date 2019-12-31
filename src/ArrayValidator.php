@@ -7,80 +7,78 @@ namespace hanneskod\clean;
 /**
  * Validate arrays of input data
  */
-class ArrayValidator extends AbstractValidator
+final class ArrayValidator implements ValidatorInterface
 {
     /**
-     * @var ValidatorInterface[] Map of field names to validators
+     * @var array<string, ValidatorInterface>
      */
-    private $validators = [];
+    private array $validators;
+    private bool $ignoreUnknown;
 
     /**
-     * @var boolean Flag if unknown array items should be ignored when validating
+     * @param array<string, ValidatorInterface> $validators
      */
-    private $ignoreUnknown = false;
-
-    /**
-     * Register validators
-     *
-     * @param ValidatorInterface[] $validators Map of field names to validators
-     */
-    public function __construct(array $validators = [])
+    public function __construct(array $validators = [], bool $ignoreUnknown = false)
     {
-        foreach ($validators as $name => $validator) {
-            $this->addValidator((string)$name, $validator);
-        }
-    }
-
-    /**
-     * Add a validator
-     */
-    public function addValidator(string $name, ValidatorInterface $validator): self
-    {
-        $this->validators[$name] = $validator;
-        return $this;
-    }
-
-    /**
-     * Set flag if unknown items should be ignored when validating
-     */
-    public function ignoreUnknown(bool $ignoreUnknown = true): self
-    {
+        $this->validators = $validators;
         $this->ignoreUnknown = $ignoreUnknown;
-        return $this;
     }
 
     /**
-     * Validate tainted data
-     *
-     * {@inheritdoc}
+     * Create a new validator flagged if unknown items should be ignored when validating
      */
-    public function validate($tainted)
+    public function ignoreUnknown(bool $ignoreUnknown = true): ArrayValidator
     {
-        if (!is_array($tainted)) {
-            throw new Exception("expecting array input");
+        return new static($this->validators, $ignoreUnknown);
+    }
+
+    public function applyTo($data): ResultInterface
+    {
+        if (!is_array($data)) {
+            return new Invalid(new Exception("expecting array input"));
         }
 
+        /** @var array<string, mixed> */
         $clean = [];
 
+        /** @var array<string, string> */
+        $errors = [];
+
         foreach ($this->validators as $name => $validator) {
-            try {
-                $clean[$name] = $validator->validate(
-                    isset($tainted[$name]) ? $tainted[$name] : null
-                );
-            } catch (Exception $exception) {
-                $exception->pushValidatorName((string)$name);
-                $this->fireException($exception);
-            } catch (\Exception $exception) {
-                $this->fireException($exception);
+            $result = $validator->applyTo($data[$name] ?? null);
+
+            if ($result->isValid()) {
+                $clean[$name] = $result->getValidData();
+                continue;
+            }
+
+            $errors[$name] = implode("\n", $result->getErrors());
+        }
+
+        if (!$this->ignoreUnknown && $diff = array_diff_key($data, $this->validators)) {
+            foreach (array_keys($diff) as $unknown) {
+                $errors[(string)$unknown] = "Unknown input item $unknown";
             }
         }
 
-        if (!$this->ignoreUnknown && $diff = array_diff_key($tainted, $this->validators)) {
-            $this->fireException(
-                new Exception('Unknown input item(s): ' . implode(', ', array_keys($diff)))
-            );
+        return new ArrayResult($clean, $errors);
+    }
+
+    public function validate($data)
+    {
+        $result = $this->applyTo($data);
+
+        if ($result->isValid()) {
+            return $result->getValidData();
         }
 
-        return $clean;
+        $msg = '';
+
+        foreach ($result->getErrors() as $name => $error) {
+            $msg .= "$name: $error\n";
+        }
+
+        throw new Exception(trim($msg));
     }
+
 }

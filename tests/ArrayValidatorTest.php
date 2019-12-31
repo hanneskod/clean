@@ -4,13 +4,10 @@ namespace hanneskod\clean;
 
 class ArrayValidatorTest extends \PHPUnit\Framework\TestCase
 {
-    public function testExceptionOnException()
+    public function testExceptionOnFailingRule()
     {
-        $validator = $this->prophesize(ValidatorInterface::class);
-        $validator->validate(null)->willThrow(new Exception);
-
         $this->expectException(Exception::class);
-        (new ArrayValidator([$validator->reveal()]))->validate([]);
+        (new ArrayValidator([new Rule]))->validate([]);
     }
 
     public function testExceptionOnNonArray()
@@ -35,62 +32,41 @@ class ArrayValidatorTest extends \PHPUnit\Framework\TestCase
 
     public function testValidate()
     {
-        $validator = $this->prophesize(ValidatorInterface::class);
-        $validator->validate('foo')->willReturn('bar');
         $this->assertSame(
-            ['key' => 'bar'],
-            (new ArrayValidator(['key' => $validator->reveal()]))->validate(['key' => 'foo'])
+            ['foo' => 'bar'],
+            (new ArrayValidator(['foo' => new Rule]))->validate(['foo' => 'bar'])
         );
     }
 
-    public function testIsCallable()
+    public function testCollectMultipleErrors()
     {
-        $validator = $this->prophesize(ValidatorInterface::class);
-        $validator->validate('foo')->willReturn('bar');
-        $this->assertSame(
-            ['key' => 'bar'],
-            (new ArrayValidator(['key' => $validator->reveal()]))(['key' => 'foo'])
-        );
+        $validator = new ArrayValidator(['foo' => (new Rule)->match('is_string')]);
+
+        $result = $validator->applyTo(['foo' => null, 'bar' => 'bar']);
+
+        $this->assertCount(2, $result->getErrors());
     }
 
-    public function testCustomExceptionCallback()
+    public function testExceptionMessage()
     {
-        $validator = $this->prophesize(ValidatorInterface::class);
-        $validator->validate('foo')->willThrow(new Exception);
+        $validator = new ArrayValidator(['foo' => (new Rule)->match(function () {
+            throw new Exception('bar');
+        })]);
 
-        $validator = new ArrayValidator(['foo' => $validator->reveal()]);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('foo: bar');
 
-        $exceptions = [];
-        $validator->onException(function (\Exception $exception) use (&$exceptions) {
-            $exceptions[] = $exception;
-        });
-
-        $validator->validate(['foo' => 'foo', 'bar' => 'bar']);
-
-        $this->assertCount(
-            2,
-            $exceptions,
-            'There should be 2 exceptions, one from the validator and one from bar not being definied'
-        );
+        $validator->validate(['foo' => '']);
     }
 
-    public function testCustomExceptionCallbackOnNonCleanException()
+    public function testNonCleanExceptions()
     {
-        $validator = $this->prophesize(ValidatorInterface::class);
-        $validator->validate('foo')->willThrow(new \Exception);
+        $validator = new ArrayValidator(['foo' => (new Rule)->match(function () {
+            throw new \Exception();
+        })]);
 
-        $validator = new ArrayValidator(['foo' => $validator->reveal()]);
+        $this->expectException(Exception::class);
 
-        $called = false;
-        $validator->onException(function (\Exception $exception) use (&$called) {
-            $called = true;
-        });
-
-        $validator->validate(['foo' => 'foo']);
-
-        $this->assertTrue(
-            $called,
-            'The exception should be caught even though it is a base exception'
-        );
+        $validator->validate(['foo' => '']);
     }
 }

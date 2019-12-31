@@ -4,145 +4,131 @@ declare(strict_types = 1);
 
 namespace hanneskod\clean;
 
-/**
- * Defines a validation rule
- */
-class Rule extends AbstractValidator
+final class Rule implements ValidatorInterface
 {
-    /**
-     * @var string Default value
-     */
-    private $default;
+    private ?string $default;
+    private ?string $errorMsg;
 
     /**
-     * @var callable[] Registered pre match filters
+     * @var array<callable> Pre match filters
      */
-    private $preFilters = [];
+    private array $pre;
 
     /**
-     * @var callable[] Registered post match filters
+     * @var array<callable> Post match filters
      */
-    private $postFilters = [];
+    private array $post;
 
     /**
-     * @var callable[] Registered matchers
+     * @var array<callable>
      */
-    private $matchers = [];
+    private array $matchers;
 
     /**
-     * @var string Exception message on validation failure
+     * @param array<callable> $pre
+     * @param array<callable> $matchers
+     * @param array<callable> $post
      */
-    private $exceptionMessage = 'Validation failed: %s';
-
-    /**
-     * Setup on-exception callback
-     */
-    public function __construct()
-    {
-        $this->onException(function (\Exception $exception) {
-            throw new Exception(sprintf($this->exceptionMessage, $exception->getMessage()), 0, $exception);
-        });
-    }
-
-    /**
-     * Set default value
-     */
-    public function def($default): self
-    {
+    public function __construct(
+        array $pre = [],
+        array $matchers = [],
+        array $post = [],
+        ?string $default = null,
+        ?string $errorMsg = null
+    ) {
+        $this->pre = $pre;
+        $this->post = $post;
+        $this->matchers = $matchers;
         $this->default = $default;
-        return $this;
+        $this->errorMsg = $errorMsg;
     }
 
     /**
-     * Register one or more pre match filters
+     * Create a new Rule with one or more pre match filters
      *
-     * A filter should take a string value and return the filtered value.
+     * A filter should take a raw value and return the filtered value.
      */
-    public function pre(callable... $filters): self
+    public function pre(callable ...$pre): Rule
     {
-        foreach ($filters as $filter) {
-            $this->preFilters[] = $filter;
-        }
-        return $this;
+        return new static([...$this->pre, ...$pre], $this->matchers, $this->post, $this->default, $this->errorMsg);
     }
 
     /**
-     * Register one or more post match filters
+     * Create a new Rule with one or more matchers
      *
-     * A filter should take a string value and return the filtered value.
-     */
-    public function post(callable... $filters): self
-    {
-        foreach ($filters as $filter) {
-            $this->postFilters[] = $filter;
-        }
-        return $this;
-    }
-
-    /**
-     * Register one or more matchers
-     *
-     * A matcher should take a string value and return true if value is a match
+     * A matcher should take a raw value and return true if value is a match
      * and false if it is not.
-     *
-     * @param  callable ...$matcher Any number of matchers
-     * @return self Instance for chaining
      */
-    public function match(callable... $matchers): self
+    public function match(callable ...$match): Rule
     {
-        foreach ($matchers as $matcher) {
-            $this->matchers[] = $matcher;
-        }
-        return $this;
+        return new static($this->pre, [...$this->matchers, ...$match], $this->post, $this->default, $this->errorMsg);
     }
 
     /**
-     * Set exception message
+     * Create a new Rule with one or more post match filters
      *
-     * Note that if a custom exception callback is registered using onException
-     * setting this exception message will have no effect.
-     *
-     * @param string $exceptionMessage Custom exception message, %s is replaced with
-     *     parent exception message
+     * A filter should take a raw value and return the filtered value.
      */
-    public function msg(string $exceptionMessage): self
+    public function post(callable ...$post): Rule
     {
-        $this->exceptionMessage = $exceptionMessage;
-        return $this;
+        return new static($this->pre, $this->matchers, [...$this->post, ...$post], $this->default, $this->errorMsg);
     }
 
     /**
-     * Validate value
-     *
-     * {@inheritdoc}
+     * Create a new Rule with default value
      */
-    public function validate($value)
+    public function def(string $default): Rule
+    {
+        return new static($this->pre, $this->matchers, $this->post, $default, $this->errorMsg);
+    }
+
+    /**
+     * Create a new Rule with exception message
+     *
+     * %s is replaced with parent exception message
+     */
+    public function msg(string $errorMsg): Rule
+    {
+        return new static($this->pre, $this->matchers, $this->post, $this->default, $errorMsg);
+    }
+
+    public function applyTo($data): ResultInterface
     {
         try {
-            if (is_null($value)) {
+            if (is_null($data)) {
                 if (!isset($this->default)) {
                     throw new Exception('value missing');
                 }
-                $value = $this->default;
+
+                $data = $this->default;
             }
 
-            foreach ($this->preFilters as $filter) {
-                $value = $filter($value);
+            foreach ($this->pre as $filter) {
+                $data = $filter($data);
             }
 
             foreach ($this->matchers as $matcherId => $matcher) {
-                if (!$matcher($value)) {
+                if (!$matcher($data)) {
                     throw new Exception("matcher #$matcherId failed");
                 }
             }
 
-            foreach ($this->postFilters as $filter) {
-                $value = $filter($value);
+            foreach ($this->post as $filter) {
+                $data = $filter($data);
             }
 
-            return $value;
-        } catch (\Exception $exception) {
-            return $this->fireException($exception);
+            return new Valid($data);
+        } catch (\Exception $e) {
+            if (isset($this->errorMsg)) {
+                $e = new Exception(sprintf($this->errorMsg, $e->getMessage()), 0, $e);
+            }
+
+            return new Invalid($e);
         }
+    }
+
+    public function validate($data)
+    {
+        return $this->applyTo($data)->getValidData();
     }
 }

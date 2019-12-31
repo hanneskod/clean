@@ -102,27 +102,35 @@ class RuleTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testCustomExceptionMessage()
+    public function testCustomErrorMessage()
     {
-        $this->expectException(Exception::class, 'my-custom-exception-message');
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('my-custom-exception-message');
         (new Rule)->msg('my-custom-exception-message')->validate(null);
     }
 
-    public function testCallbackOnException()
+    public function testSimpleApplyTo()
     {
-        $this->assertSame(
-            'foobar',
-            (new Rule)->match('ctype_digit')->onException(function () {
-                return 'foobar';
-            })->validate('foo')
+        $this->assertFalse(
+            (new Rule)->match('ctype_digit')->applyTo('foo')->isValid()
         );
     }
 
-    public function testIsCallable()
+    public function testErrorMessageFromException()
     {
-        $this->assertSame(
-            '123',
-            (new Rule)->match('ctype_digit')('123')
-        );
+        $rule = (new Rule)->match(function () {
+            throw new \Exception('foobar');
+        });
+
+        $this->assertSame(['foobar'], $rule->applyTo('')->getErrors());
+    }
+
+    public function testCustomErrmrMessageOwerrideException()
+    {
+        $rule = (new Rule)->match(function () {
+            throw new \Exception('foo');
+        });
+
+        $this->assertSame(['bar'], $rule->msg('bar')->applyTo('')->getErrors());
     }
 }

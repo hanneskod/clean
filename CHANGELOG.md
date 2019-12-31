@@ -4,7 +4,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-- Nothing yet...
+### Added
+- `ValidatorInterface::applyTo()` and `ResultInterface`
+
+### Changed
+- Validators are no longer callable
+- `Rule` and `ArrayValidator` are now **immutable** and **final**
+- Require php 7.4
+
+## Removed
+- `Exception::pushValidatorName()` and `Exception::getSourceValidatorName()`
+- `ArrayValidator::addValidator()`
 
 ## [2.0.1] - 2017-10-15
 

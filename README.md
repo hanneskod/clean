@@ -1,5 +1,4 @@
-hanneskod/clean
-===============
+# hanneskod/clean
 
 [![Packagist Version](https://img.shields.io/packagist/v/hanneskod/clean.svg?style=flat-square)](https://packagist.org/packages/hanneskod/clean)
 [![Build Status](https://img.shields.io/travis/hanneskod/clean/master.svg?style=flat-square)](https://travis-ci.org/hanneskod/clean)
@@ -7,8 +6,8 @@ hanneskod/clean
 
 A clean (as in simple) data cleaner (as in validation tool)
 
-Why?
-----
+## Why?
+
 Sometimes it's necessary to perform complex input validation, and a number of
 tools exist for this purpose (think Respect\\Validation). At other times
 (arguably most times) built in php functions such as the ctype-family and
@@ -16,57 +15,39 @@ regular expressions are simply good enough. At these times pulling in a heavy
 validation library to perform basic tasks can be unnecessarily complex.
 
 Clean acts as a thin wrapper around callables and native php functions, *in less
-than 200 lines of code*, and allows you to filter and validate user input
+than 100 logical lines of code*, and allows you to filter and validate user input
 through a simple and compact fluent interface.
 
-Installation
-------------
-Install using [composer][]. Exists as `hanneskod/clean` in the [packagist][]
-repository:
+## Installation
 
-    composer require hanneskod/clean
+```shell
+composer require hanneskod/clean
+```
 
-Clean requires php 7.1 or later and has no userland dependencies.
+Clean requires php 7.4 or later and has no userland dependencies.
 
-Clean attempts to comply with [PSR-1][], [PSR-2][], and [PSR-4][]. If
-you notice compliance oversights, please submit a pull request.
+## Usage
 
-Usage
------
 Basic usage consists of grouping a set of [Rules](src/Rule.php) in an
 [ArrayValidator](src/ArrayValidator.php).
 
-<!-- @expectOutput 1234FOO -->
+<!-- @example "basic usage" -->
+<!-- @expectError -->
 ```php
-use hanneskod\clean;
+use hanneskod\clean\ArrayValidator;
+use hanneskod\clean\Rule;
 
-$validator = new clean\ArrayValidator([
-    'foo' => (new clean\Rule)->pre('trim')->match('ctype_digit'),
-    'bar' => (new clean\Rule)->match('ctype_alpha')->post('strtoupper')
+$validator = new ArrayValidator([
+    'foo' => (new Rule)->match('ctype_digit'),
+    'bar' => (new Rule)->match('ctype_alpha'),
 ]);
 
 $tainted = [
-    'foo' => ' 1234 ',
-    'bar' => 'foo'
+    'foo' => 'not-valid only digits allowed',
+    'bar' => 'valid'
 ];
 
-$clean = $validator->validate($tainted);
-
-// outputs 1234
-echo $clean['foo'];
-
-// outputs FOO
-echo $clean['bar'];
-```
-
-Validators are also callable in themselves.
-
-<!-- @expectOutput 123 -->
-```php
-use hanneskod\clean;
-
-// outputs 123
-echo (new clean\Rule)->pre('trim')->match('ctype_digit')('  123  ');
+$validator->validate($tainted);
 ```
 
 ### Defining rules
@@ -83,6 +64,7 @@ Rules are defined using the `pre()`, `match()` and `post()` methods.
 
 A rule definition might look like this:
 
+<!-- @example "defining rules" -->
 <!-- @expectOutput FOOBAR -->
 ```php
 use hanneskod\clean\Rule;
@@ -99,12 +81,14 @@ Rules may define a default value using the `def()` method. The default value is
 used as a replacement for `null`. This effectively makes the field optional in
 an ArrayValidator setting.
 
+<!-- @example "optional input" -->
 <!-- @expectOutput baz -->
 ```php
-use hanneskod\clean;
+use hanneskod\clean\ArrayValidator;
+use hanneskod\clean\Rule;
 
-$validator = new clean\ArrayValidator([
-    'key' => (new clean\Rule)->def('baz')
+$validator = new ArrayValidator([
+    'key' => (new Rule)->def('baz')
 ]);
 
 $data = $validator->validate([]);
@@ -119,15 +103,16 @@ When validation fails an exception is thrown with a generic message describing
 the error. Each rule may define a custom exception message using the `msg()`
 method to fine tune this behaviour.
 
+<!-- @example "custom exception message" -->
 <!-- @expectOutput "Expecting numerical input" -->
 ```php
-use hanneskod\clean;
+use hanneskod\clean\Rule;
 
-$rule = (new clean\Rule)->msg('Expecting numerical input')->match('ctype_digit');
+$rule = (new Rule)->msg('Expecting numerical input')->match('ctype_digit');
 
 try {
     $rule->validate('foo');
-} catch (clean\Exception $e) {
+} catch (Exception $e) {
     // outputs Expecting numerical input
     echo $e->getMessage();
 }
@@ -137,11 +122,12 @@ try {
 
 By default unkown intput items triggers exceptions.
 
-<!-- @expectException hanneskod\clean\Exception -->
+<!-- @example "exception on unknown array item" -->
+<!-- @expectError -->
 ```php
-use hanneskod\clean;
+use hanneskod\clean\ArrayValidator;
 
-$validator = new clean\ArrayValidator([]);
+$validator = new ArrayValidator([]);
 
 // throws a clean\Exception as key is not present in validator
 $validator->validate(['this-key-is-not-definied' => '']);
@@ -149,11 +135,12 @@ $validator->validate(['this-key-is-not-definied' => '']);
 
 Use `ignoreUnknown()` to switch this functionality off.
 
+<!-- @example "ignoring an unknown array item" -->
 <!-- @expectOutput empty -->
 ```php
-use hanneskod\clean;
+use hanneskod\clean\ArrayValidator;
 
-$validator = (new clean\ArrayValidator)->ignoreUnknown();
+$validator = (new ArrayValidator)->ignoreUnknown();
 $clean = $validator->validate(['this-key-is-not-definied' => 'foobar']);
 
 // outputs empty
@@ -164,13 +151,15 @@ echo empty($clean) ? 'empty' : 'not empty';
 
 ArrayValidators can be nested as follows:
 
+<!-- @example "nesting validators" -->
 <!-- @expectOutput bar -->
 ```php
-use hanneskod\clean;
+use hanneskod\clean\ArrayValidator;
+use hanneskod\clean\Rule;
 
-$validator = new clean\ArrayValidator([
-    'nested' => new clean\ArrayValidator([
-        'foo' => new clean\Rule
+$validator = new ArrayValidator([
+    'nested' => new ArrayValidator([
+        'foo' => new Rule
     ])
 ]);
 
@@ -186,109 +175,69 @@ $clean = $validator->validate($tainted);
 echo $clean['nested']['foo'];
 ```
 
-### Identifying a failing rule
+### Inspecting validation results using applyTo()
 
-For logging purposes it can be helpful to programmatically identify a failing
-rule. This is done using the `getSourceValidatorName()` in
-[`Exception`](src/Exception.php).
+The `validate()` method throws an exception as soon as a match fails. This may
+of course not always be what you want. You can inspect the validation result
+directly by using the `applyTo()` method instead.
 
-<!-- @expectOutput foo -->
-```php
-use hanneskod\clean;
-
-$validator = new clean\ArrayValidator([
-    'foo' => (new clean\Rule)->match('ctype_digit'),
-]);
-
-try {
-    $validator->validate(['foo' => 'non-digits']);
-} catch (clean\Exception $e) {
-    // outputs foo
-    echo $e->getSourceValidatorName();
-}
-```
-
-This also works well with nested validators.
-
-<!-- @expectOutput foo::bar -->
-```php
-use hanneskod\clean;
-
-$validator = new clean\ArrayValidator([
-    'foo' => new clean\ArrayValidator([
-        'bar' => (new clean\Rule)->match('ctype_digit')
-    ])
-]);
-
-try {
-    $validator->validate(['foo' => ['bar' => 'non-digits']]);
-} catch (clean\Exception $e) {
-    // outputs foo::bar
-    echo $e->getSourceValidatorName();
-}
-```
-
-### Using the exception callback
-
-Validators throws exceptions as soon as a match fails. This may of course not
-always be what you want and this behaviour can be overridden by specifying an
-`onException()` callback (both at the Rule and ArrayValidator level).
-
-This can for example be used to set default values used on failure only.
-
+<!-- @example "inspecting validation results" -->
 <!-- @expectOutput 12345 -->
 ```php
 use hanneskod\clean\Rule;
 
-$rule = (new Rule)->match('ctype_digit')->onException(function () {
-    return '12345';
-});
+$rule = (new Rule)->match('ctype_digit');
 
-// outputs 12345
-echo $rule->validate('these are no digits');
+$result = $rule->applyTo('12345');
+
+$result->isValid() == true;
+
+// outputs message
+echo $result->getValidData();
 ```
 
-Or to compose a list of all failures.
+### Catching all of the failures
 
-<!-- @expectOutput "failure onefailure two" -->
+Individual errors can be accessed using the result object.
+
+<!-- @example "catching all of the failures" -->
+<!-- @expectOutput "failure 1failure 2" -->
 ```php
-use hanneskod\clean;
+use hanneskod\clean\ArrayValidator;
+use hanneskod\clean\Rule;
 
-$validator = new clean\ArrayValidator([
-    'foo' => (new clean\Rule)->match('ctype_digit')->msg('failure one'),
-    'bar' => (new clean\Rule)->match('ctype_digit')->msg('failure two')
+$validator = new ArrayValidator([
+    '1' => (new Rule)->match('ctype_digit')->msg('failure 1'),
+    '2' => (new Rule)->match('ctype_digit')->msg('failure 2'),
 ]);
 
-$exceptions = [];
+// Both 1 and 2 will fail as they are not numerical
+$result = $validator->applyTo(['1' => '', '2' => '']);
 
-// Note the typehint using \Exception, any exception thrown in a filter or
-// matcher is redirected here, so typehinting on clean\Exception is a misstake..
-$validator->onException(function (\Exception $e) use (&$exceptions) {
-    $exceptions[] = $e;
-});
-
-// Both foo and bar will fail as they are not numerical
-$validator->validate(['foo' => '', 'bar' => '']);
-
-//outputs failure onefailure two
-foreach ($exceptions as $e) {
-    echo $e->getMessage();
+//outputs failure 1failure 2
+foreach ($result->getErrors() as $errorMsg) {
+    echo $errorMsg;
 }
 ```
 
-Testing
--------
-To run the unit tests at the command line, issue `composer install` and then
-`phpunit` at the package root.
+### Identifying a failing rule
 
-Credits
--------
-Clean is covered under the WTFPL license.
+<!-- @example "identifying a failing rule" -->
+<!-- @expectOutput foo -->
+```php
+use hanneskod\clean\ArrayValidator;
+use hanneskod\clean\Rule;
 
-@author Hannes Forsgård (hannes.forsgard@fripost.org)
+$validator = new ArrayValidator([
+    'foo' => (new Rule)->match('ctype_digit'),
+    'bar' => (new Rule)->match('ctype_digit'),
+]);
 
-[PSR-1]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md
-[PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
-[PSR-4]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
-[composer]: http://getcomposer.org/
-[packagist]: https://packagist.org/
+$result = $validator->applyTo([
+    'foo' => 'not-valid',
+    'bar' => '12345'
+]);
+
+// outputs foo
+echo implode(array_keys($result->getErrors()));
+```

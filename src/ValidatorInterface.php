@@ -2,26 +2,21 @@
 
 namespace hanneskod\clean;
 
-/**
- * Base validator interface
- */
 interface ValidatorInterface
 {
     /**
-     * Validate tainted data
+     * Apply validator to data
      *
-     * @param  mixed $tainted
-     * @return mixed The cleaned data
-     * @throws Exception If validation fails
+     * @param mixed $data
      */
-    public function validate($tainted);
+    public function applyTo($data): ResultInterface;
 
     /**
-     * Trigger validation using validator as a callable
+     * Validate tainted data
      *
-     * @param  mixed $tainted
+     * @param mixed $data
      * @return mixed The cleaned data
      * @throws Exception If validation fails
      */
-    public function __invoke($tainted);
+    public function validate($data);
 }
