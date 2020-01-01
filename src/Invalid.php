@@ -6,9 +6,9 @@ namespace hanneskod\clean;
 
 final class Invalid implements ResultInterface
 {
-    private \Exception $error;
+    private \Throwable $error;
 
-    public function __construct(\Exception $error)
+    public function __construct(\Throwable $error)
     {
         $this->error = $error;
     }

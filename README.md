@@ -145,6 +145,7 @@ Use `ignoreUnknown()` to switch this functionality off.
 use hanneskod\clean\ArrayValidator;
 
 $validator = (new ArrayValidator)->ignoreUnknown();
+
 $clean = $validator->validate(['this-key-is-not-definied' => 'foobar']);
 
 // outputs empty
@@ -196,7 +197,7 @@ $result = $rule->applyTo('12345');
 
 $result->isValid() == true;
 
-// outputs message
+// outputs 12345
 echo $result->getValidData();
 ```
 

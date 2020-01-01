@@ -118,7 +118,7 @@ final class Rule implements ValidatorInterface
             }
 
             return new Valid($data);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             if (isset($this->errorMsg)) {
                 $e = new Exception(sprintf($this->errorMsg, $e->getMessage()), 0, $e);
             }

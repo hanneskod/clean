@@ -122,15 +122,57 @@ class RuleTest extends \PHPUnit\Framework\TestCase
             throw new \Exception('foobar');
         });
 
-        $this->assertSame(['foobar'], $rule->applyTo('')->getErrors());
+        $this->assertSame(
+            ['foobar'],
+            $rule->applyTo('')->getErrors()
+        );
     }
 
-    public function testCustomErrmrMessageOwerrideException()
+    public function testCustomErrorMessageOwerrideException()
     {
-        $rule = (new Rule)->match(function () {
+        $rule = (new Rule)->msg('bar')->match(function () {
             throw new \Exception('foo');
         });
 
-        $this->assertSame(['bar'], $rule->msg('bar')->applyTo('')->getErrors());
+        $this->assertSame(
+            ['bar'],
+            $rule->applyTo('')->getErrors()
+        );
+    }
+
+    public function testTypeError()
+    {
+        $rule = (new Rule)->match(function (string $str) {
+            return true;
+        });
+
+        $this->assertFalse(
+            $rule->applyTo(true)->isValid()
+        );
+
+        $this->expectException(\Throwable::class);
+        $rule->validate(true);
+    }
+
+    public function testPreventTypeErrorWithTypeCheck()
+    {
+        $rule = (new Rule)->match('is_string', function (string $value) {
+            return true;
+        });
+
+        $this->expectException(Exception::class);
+        $rule->validate([]);
+    }
+
+    public function testCustomErrorMessageOwerrideTypeError()
+    {
+        $rule = (new Rule)->msg('foo')->match(function (string $str) {
+            return true;
+        });
+
+        $this->assertSame(
+            ['foo'],
+            $rule->applyTo([])->getErrors()
+        );
     }
 }
