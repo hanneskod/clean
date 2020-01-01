@@ -65,6 +65,18 @@ final class Rule implements ValidatorInterface
     }
 
     /**
+     * Create a new Rule with a regular expression matcher
+     *
+     * $regexp should be a regular expression consumable by preg_match().
+     */
+    public function regexp(string $regexp): Rule
+    {
+        return $this->match('is_string', function (string $value) use ($regexp): bool {
+            return (bool)preg_match($regexp, $value);
+        });
+    }
+
+    /**
      * Create a new Rule with one or more post match filters
      *
      * A filter should take a raw value and return the filtered value.

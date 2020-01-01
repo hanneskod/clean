@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - `ValidatorInterface::applyTo()` and `ResultInterface`
+- `Rule::regexp()`
 
 ### Changed
 - Validators are no longer callable

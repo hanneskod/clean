@@ -175,4 +175,24 @@ class RuleTest extends \PHPUnit\Framework\TestCase
             $rule->applyTo([])->getErrors()
         );
     }
+
+    public function testRegexp()
+    {
+        $this->assertSame(
+            'foo',
+            (new Rule)->regexp('/^[a-z]*$/')->validate('foo')
+        );
+    }
+
+    public function testFailingRegexp()
+    {
+        $this->expectException(Exception::class);
+        (new Rule)->regexp('/^[a-z]*$/')->validate('123');
+    }
+
+    public function testRegexpTypeError()
+    {
+        $this->expectException(Exception::class);
+        (new Rule)->regexp('/^[a-z]*$/')->validate([]);
+    }
 }

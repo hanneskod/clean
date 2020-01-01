@@ -79,6 +79,22 @@ $rule = (new Rule)->pre('trim')->match('ctype_alpha')->post('strtoupper');
 echo $rule->validate('   foobar   ');
 ```
 
+### Using the regexp matcher
+
+The `Rule` validator comes with one special case matcher: `regexp()` to match
+string input against a posix style regular expression (`preg_match()`).
+
+<!-- @example "regexp()" -->
+<!-- @expectOutput ABC -->
+```php
+use hanneskod\clean\Rule;
+
+$rule = (new Rule)->regexp('/A/');
+
+// outputs ABC
+echo $rule->validate('ABC');
+```
+
 ### Making input optional
 
 Rules may define a default value using the `def()` method. The default value is
