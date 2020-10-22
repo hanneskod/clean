@@ -16,6 +16,11 @@
             "hanneskod\\clean\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "hanneskod\\clean\\": "tests/"
+        }
+    },
     "require": {
         "php": ">=7.4"
     },
